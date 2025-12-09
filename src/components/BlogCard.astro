@@ -9,6 +9,7 @@ import {
   parseAuthors,
 } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
+import { defaultBanner } from '@/lib/assets'
 import { Icon } from 'astro-icon/components'
 import { Image } from 'astro:assets'
 import type { CollectionEntry } from 'astro:content'
@@ -32,19 +33,15 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
     href={`/${entry.collection}/${entry.id}`}
     class="flex flex-col gap-4 sm:flex-row"
   >
-    {
-      entry.data.image && (
-        <div class="w-full sm:max-w-3xs sm:shrink-0">
-          <Image
-            src={entry.data.image}
-            alt={entry.data.title}
-            width={1200}
-            height={630}
-            class="object-cover"
-          />
-        </div>
-      )
-    }
+    <div class="w-full sm:max-w-3xs sm:shrink-0 overflow-hidden rounded-sm">
+      <Image
+        src={entry.data.image || defaultBanner}
+        alt={entry.data.title}
+        width={1200}
+        height={630}
+        class="object-cover"
+      />
+    </div>
 
     <div class="grow">
       <h3 class="mb-1 text-lg font-medium">{entry.data.title}</h3>
