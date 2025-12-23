@@ -31,19 +31,19 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
 >
   <Link
     href={`/${entry.collection}/${entry.id}`}
-    class="flex flex-col gap-4 sm:flex-row"
+    class="flex flex-col gap-4 sm:flex-row sm:items-stretch"
   >
-    <div class="w-full sm:max-w-3xs sm:shrink-0 overflow-hidden rounded-sm">
+    <div class="w-full sm:max-w-3xs sm:shrink-0 sm:self-stretch overflow-hidden rounded-sm">
       <Image
         src={entry.data.image || defaultBanner}
         alt={entry.data.title}
         width={1200}
         height={630}
-        class="object-cover"
+        class="h-full w-full object-cover"
       />
     </div>
 
-    <div class="grow">
+    <div class="grow flex flex-col">
       <h3 class="mb-1 text-lg font-medium">{entry.data.title}</h3>
       <p class="text-muted-foreground mb-2 text-sm">{entry.data.description}</p>
 

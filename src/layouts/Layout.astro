@@ -25,7 +25,8 @@ const { class: className } = Astro.props
   </Head>
   <body class="flex h-fit min-h-screen flex-col gap-y-6 font-sans">
     <header
-      class="bg-background/50 sticky top-0 z-50 divide-y backdrop-blur-sm xl:divide-none"
+      id="main-header"
+      class="bg-background/50 sticky top-0 z-50 divide-y backdrop-blur-sm transition-transform duration-300 ease-in-out xl:divide-none"
     >
       <Header />
       <slot name="subposts-navigation" />
@@ -39,3 +40,67 @@ const { class: className } = Astro.props
     <Footer />
   </body>
 </html>
+
+<script>
+  // todo : need to cleanup!
+  function initScrollHeader() {
+    const header = document.getElementById('main-header')
+    if (!header) return
+
+    const SCROLL_THRESHOLD = 50
+    const TOP_THRESHOLD = 10
+
+    let lastScrollY = window.scrollY
+    let isHeaderHidden = false
+    let scrollPositionAtStateChange = 0
+    let ticking = false
+
+    function showHeader() {
+      if (!header) return
+      header.classList.remove('-translate-y-full')
+      isHeaderHidden = false
+      scrollPositionAtStateChange = window.scrollY
+    }
+
+    function hideHeader() {
+      if (!header) return
+      header.classList.add('-translate-y-full')
+      isHeaderHidden = true
+      scrollPositionAtStateChange = window.scrollY
+    }
+
+    function updateHeader() {
+      const currentScrollY = window.scrollY
+      const scrollDelta = Math.abs(currentScrollY - scrollPositionAtStateChange)
+      const isScrollingDown = currentScrollY > lastScrollY
+
+      // Always show header at top of page
+      if (currentScrollY < TOP_THRESHOLD) {
+        if (isHeaderHidden) showHeader()
+      }
+      // Only update if scrolled enough distance
+      else if (scrollDelta >= SCROLL_THRESHOLD) {
+        if (isScrollingDown && !isHeaderHidden) {
+          hideHeader()
+        } else if (!isScrollingDown && isHeaderHidden) {
+          showHeader()
+        }
+      }
+
+      lastScrollY = currentScrollY
+      ticking = false
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        window.requestAnimationFrame(updateHeader)
+        ticking = true
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+  }
+
+  initScrollHeader()
+  document.addEventListener('astro:page-load', initScrollHeader)
+</script>

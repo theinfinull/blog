@@ -1,47 +1,172 @@
 ---
-import Breadcrumbs from '@/components/Breadcrumbs.astro'
-import Link from '@/components/Link.astro'
-import PageHead from '@/components/PageHead.astro'
-import ProjectCard from '@/components/ProjectCard.astro'
-import Layout from '@/layouts/Layout.astro'
-import { getAllProjects } from '@/lib/data-utils'
+// Astro
+import { Image } from 'astro:assets'
 
-const projects = await getAllProjects()
+// Components
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import ExperienceTimeline from '@/components/ExperienceTimeline.astro'
+import PageHead from '@/components/PageHead.astro'
+import { buttonVariants } from '@/components/ui/button'
+
+// Layouts
+import Layout from '@/layouts/Layout.astro'
+
+// Utils & Data
+import { getAllExperiences } from '@/lib/data-utils'
+import { cn } from '@/lib/utils'
+import type { SocialLink } from '@/types'
+
+// Data
+const experiences = await getAllExperiences()
+const age = new Date().getFullYear() - 2002
+
+// Constants
+const cvPath = '/static/cv-common.pdf'
+const zohoUrl = 'https://www.zoho.com'
+const email = 'theinfinull@gmail.com'
+const buttonOutlineClass = cn(
+  buttonVariants({ variant: 'outline', size: 'default' }),
+  'flex items-center gap-2 rounded-none border-accent border-dashed text-accent hover:bg-accent/10 hover:text-accent'
+)
+
+// Social links for the contact section
+const contactSocialLinks: SocialLink[] = [
+  {
+    href: 'https://github.com/theinfinull',
+    label: 'GitHub',
+  },
+  {
+    href: 'https://twitter.com/enscry',
+    label: 'Twitter',
+  },
+  {
+    href: 'https://www.linkedin.com/in/sedhumadhav/',
+    label: 'LinkedIn',
+  },
+  {
+    href: `mailto:${email}`,
+    label: 'Email',
+  },
+]
 ---
 
 <Layout class="max-w-3xl">
   <PageHead slot="head" title="About" />
   <Breadcrumbs items={[{ label: 'About', icon: 'lucide:info' }]} />
 
-  <section>
-    <div class="min-w-full">
-      <div class="prose mb-8">
-        <p class="mt-0">
-          astro-erudite is an opinionated, unstyled static blogging template
-          that prioritizes simplicity and performance, built with <Link
-            href="https://astro.build"
-            external
-            underline>Astro</Link
-          >, <Link href="https://tailwindcss.com" external underline
-            >Tailwind</Link
-          >, and <Link href="https://ui.shadcn.com" external underline
-            >shadcn/ui</Link
-          >. It provides a clean foundation for your content while being
-          extremely easy to customize.
-        </p>
-        <p>
-          To learn more about the philosophy behind this template, check out the
-          following blog post: <Link
-            href="/blog/the-state-of-static-blogs"
-            underline>The State of Static Blogs in 2024</Link
-          >.
-        </p>
-      </div>
+  <style is:global>
+    .about-page {
+      --accent: oklch(0.72 0.14 130);
+      --accent-foreground: oklch(98.5% 0 0);
+    }
+    [data-theme='dark'] .about-page {
+      --accent: oklch(0.72 0.14 130);
+      --accent-foreground: oklch(98.5% 0 0);
+    }
+  </style>
 
-      <h2 class="mb-4 text-2xl font-medium">Example Projects Listing</h2>
-      <div class="flex flex-col gap-4">
-        {projects.map((project) => <ProjectCard project={project} />)}
+  <div class="about-page flex flex-col gap-y-8">
+    <!-- Header section with profile photos -->
+    <section class="flex flex-col items-center gap-6 text-center">
+      <div class="relative flex items-end justify-center">
+        <!-- My Profile -->
+        <div
+          class="border-background bg-muted relative z-0 size-48 overflow-hidden rounded-full border-4"
+        >
+          <Image
+            src="/static/profile-sedhu.jpg"
+            alt="Profile picture"
+            width={128}
+            height={128}
+            class="h-full w-full object-cover"
+          />
+        </div>
+        <!-- Infinull Profile -->
+        <div
+          class="border-background bg-muted relative z-10 -ml-8 size-32 overflow-hidden rounded-full border-4"
+        >
+          <Image
+            src="/static/profile-infinull.png"
+            alt="Dev logo"
+            width={192}
+            height={192}
+            class="h-full w-full object-contain"
+          />
+        </div>
       </div>
-    </div>
-  </section>
+      <h1 class="font-bon-vivant pt-4 text-6xl font-bold">
+        Who's <span class="text-accent">Infinull ?</span>
+      </h1>
+    </section>
+
+    <!-- About Me Section -->
+    <section>
+      <div>
+        <p class="prose prose-sm text-muted-foreground max-w-none">
+          Hey! I'm <span class="bold text-accent">Sedhu Madhav</span> aka Infinull,
+          {age} year old software dev from Tamilnadu, India. Right now, I'm working
+          as a Backend Developer at{' '}
+          <a
+            href={zohoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-accent decoration-accent underline decoration-wavy"
+          >
+            Zoho
+          </a>.
+        </p>
+        <p class="prose prose-sm text-muted-foreground max-w-none pt-4">
+          I started out as a Computer Science graduate, curious about how things
+          work under the hood. Somewhere along the way, that curiosity turned
+          into a passion - and eventually, a career I genuinely enjoy.
+        </p>
+      </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section>
+      <h2 class="font-bon-vivant mb-4 text-4xl font-semibold">
+        skills, you ask?
+      </h2>
+
+      <p class="prose prose-sm text-muted-foreground max-w-3xl leading-relaxed">
+        I primarily work on web projects, focusing on the backend — APIs, Logic,
+        DBs and stuff. Every now and then, I start messing around with frontend
+        too, crafting sites that I find cool — like this one.
+      </p>
+    </section>
+
+    <!-- Interests Section -->
+    <section>
+      <h2 class="font-bon-vivant mb-4 text-4xl font-semibold">my interests</h2>
+
+      <p class="text-muted-foreground max-w-3xl leading-relaxed">
+        I love anime, music, and obviously - coding. I spend my time hopping
+        between playlists, episodes, and terminals.
+      </p>
+    </section>
+
+    <hr class="my-4" />
+
+    <!-- Experience Section -->
+    <section>
+      <h2 class="mb-4 text-3xl font-bold">My Experience</h2>
+      <ExperienceTimeline experiences={experiences} />
+    </section>
+
+    <!-- Contact Section -->
+    <section class="border-t pt-14">
+      <div class="text-center">
+        <h2 class="mb-2 text-5xl font-semibold">
+          <span class="font-bon-vivant text-accent">Let's Connect</span>
+        </h2>
+        <p
+          class="text-muted-foreground mx-auto max-w-xl text-base leading-relaxed"
+        >
+          Whether you're looking to collaborate, discuss ideas, or just say hi —
+          I'm always open to connecting with fellow developers and creators.
+        </p>
+      </div>
+    </section>
+  </div>
 </Layout>

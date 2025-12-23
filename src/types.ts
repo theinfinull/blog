@@ -5,12 +5,15 @@ export type Site = {
   author: string
   locale: string
   featuredPostCount: number
+  featuredProjectCount: number
   postsPerPage: number
 }
 
 export type SocialLink = {
   href: string
   label: string
+  icon?: string
+  hideBelowPx?: number
 }
 
 export type IconMap = {

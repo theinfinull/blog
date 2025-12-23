@@ -1,13 +1,21 @@
 ---
 import BlogCard from '@/components/BlogCard.astro'
+import ExperienceTimeline from '@/components/ExperienceTimeline.astro'
 import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
+import ProjectCard from '@/components/ProjectCard.astro'
 import { buttonVariants } from '@/components/ui/button'
 import { SITE } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
-import { getRecentPosts } from '@/lib/data-utils'
+import {
+  getAllExperiences,
+  getRecentPosts,
+  getRecentProjects,
+} from '@/lib/data-utils'
 
 const blog = await getRecentPosts(SITE.featuredPostCount)
+const projects = await getRecentProjects(SITE.featuredProjectCount)
+const experiences = await getAllExperiences()
 ---
 
 <Layout class="max-w-3xl">
@@ -20,7 +28,7 @@ const blog = await getRecentPosts(SITE.featuredPostCount)
       </p>
     </div>
     <div class="p-6 pt-0">
-      <p class="text-muted-foreground mb-2 text-sm">
+      <p class="text-muted-foreground font-playfair-display mb-2 text-xl">
         astro-erudite is an opinionated, unstyled static blogging template built
         with <Link
           href="https://astro.build"
@@ -44,7 +52,9 @@ const blog = await getRecentPosts(SITE.featuredPostCount)
           underline>Astro Micro</Link
         > theme.
       </p>
-      <p class="text-muted-foreground text-sm">
+      <p
+        class="text-muted-foreground font-playfair-display pt-4 text-sm text-xl"
+      >
         To use this template, check out the <Link
           href="https://github.com/jktrn/astro-erudite"
           class="text-foreground"
@@ -57,6 +67,34 @@ const blog = await getRecentPosts(SITE.featuredPostCount)
           underline>The State of Static Blogs in 2024</Link
         >.
       </p>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="mb-4 pt-6 text-2xl font-medium">Experience</h2>
+    <ExperienceTimeline experiences={experiences} />
+  </section>
+  <section class="flex flex-col gap-y-4">
+    <h2 class="text-2xl font-medium">Recent projects</h2>
+    <ul class="flex flex-col gap-y-4">
+      {
+        projects.map((project) => (
+          <li>
+            <ProjectCard project={project} />
+          </li>
+        ))
+      }
+    </ul>
+    <div class="flex justify-center">
+      <Link
+        href="/projects"
+        class={buttonVariants({ variant: 'ghost' }) + ' group'}
+      >
+        See all projects <span
+          class="ml-1.5 transition-transform group-hover:translate-x-1"
+          >&rarr;</span
+        >
+      </Link>
     </div>
   </section>
   <section class="flex flex-col gap-y-4">

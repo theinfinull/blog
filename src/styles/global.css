@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
 @import 'tailwindcss';
 
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
@@ -9,6 +11,14 @@
   --font-mono:
     Geist Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     'Liberation Mono', 'Courier New', monospace;
+  --font-caveat: Caveat;
+  --font-bon-vivant: 'Bon Vivant';
+  --font-ringift: 'Ringift';
+  --font-monalisa-serif: 'MonalisaSerif';
+  --font-yenisei: 'Yenisei';
+  --font-boiling-black: 'BoilingBlack';
+  --font-playfair-display: 'Playfair Display';
+  --font-pp-editorial: 'PP Editorial New';
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -21,6 +31,9 @@
 
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
 
   --color-border: var(--border);
   --color-ring: var(--ring);
@@ -42,6 +55,103 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: 'Caveat';
+  src: url('/fonts/Caveat.ttf') format('truetype');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Bon Vivant';
+  src: url('/fonts/BonVivant.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Ringift';
+  src: url('/fonts/Ringift.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MonalisaSerif';
+  src: url('/fonts/MonalisaSerif.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Yenisei';
+  src: url('/fonts/Yenisei.otf') format('opentype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BoilingBlack';
+  src: url('/fonts/BoilingBlackDemo.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Editorial New';
+  src: url('/fonts/PPEditorial/PPEditorialNew-Ultralight.otf') format('opentype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Editorial New';
+  src: url('/fonts/PPEditorial/PPEditorialNew-UltralightItalic.otf') format('opentype');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Editorial New';
+  src: url('/fonts/PPEditorial/PPEditorialNew-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Editorial New';
+  src: url('/fonts/PPEditorial/PPEditorialNew-Italic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Editorial New';
+  src: url('/fonts/PPEditorial/PPEditorialNew-Ultrabold.otf') format('opentype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PP Editorial New';
+  src: url('/fonts/PPEditorial/PPEditorialNew-UltraboldItalic.otf') format('opentype');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* original colour palette
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -65,6 +175,40 @@
   --border: oklch(1 0 0 / 10%);
   --ring: oklch(0.556 0 0);
 }
+*/
+
+:root {
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.15 0 0);
+  --primary: oklch(0.22 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.965 0 0);
+  --secondary-foreground: oklch(0.23 0 0);
+  --muted: oklch(0.94 0 0);
+  --muted-foreground: oklch(0.52 0 0);
+  --accent: oklch(0.72 0.14 130);
+  --accent-foreground: oklch(0.18 0.02 120);
+  --destructive: oklch(0.58 0.24 27);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(0.91 0 0);
+  --ring: oklch(0.75 0 0);
+}
+
+[data-theme='dark'] {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary:oklch(26.9% 0 0);
+  --secondary-foreground:oklch(98.5% 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent:oklch(0.74 0.17 130);
+  --accent-foreground:oklch(24.71% .0024 247.92);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --ring: oklch(0.556 0 0);
+}
 
 @layer base {
   *,
@@ -73,5 +217,15 @@
   ::backdrop,
   ::file-selector-button {
     @apply border-border outline-ring/50 tracking-tight;
+  }
+}
+
+@layer utilities {
+  .font-playfair-display {
+    font-family: 'Playfair Display', serif;
+  }
+  
+  .font-pp-editorial {
+    font-family: var(--font-pp-editorial), serif;
   }
 }

@@ -1,0 +1,234 @@
+---
+import Breadcrumbs from '@/components/Breadcrumbs.astro'
+import PageHead from '@/components/PageHead.astro'
+import Layout from '@/layouts/Layout.astro'
+import { getAllPosts, getAllProjects } from '@/lib/data-utils'
+import { getPageSearchData } from '@/lib/page-content'
+import { Icon } from 'astro-icon/components'
+
+const allPosts = await getAllPosts()
+const allProjects = await getAllProjects()
+
+// Serialize posts data for client-side search
+const postsData = allPosts.map((post) => ({
+  id: post.id,
+  title: post.data.title,
+  description: post.data.description,
+  tags: post.data.tags || [],
+  date: post.data.date.toISOString(),
+  slug: `/${post.collection}/${post.id}`,
+  type: 'post',
+}))
+
+// Serialize projects data for client-side search
+const projectsData = allProjects.map((project) => ({
+  id: project.id,
+  title: project.data.name,
+  description: project.data.description,
+  tags: project.data.tags || [],
+  slug: `/projects#${project.id}`,
+  type: 'project',
+}))
+
+// Get page content from actual pages
+const pageData = await getPageSearchData()
+
+const allSearchData = [...postsData, ...projectsData, ...pageData]
+---
+
+<Layout class="max-w-3xl">
+  <PageHead slot="head" title="Search" description="Search through blog posts" />
+  <Breadcrumbs
+    items={[
+      { href: '/blog', label: 'Blog', icon: 'lucide:library-big' },
+      { label: 'Search', icon: 'lucide:search' },
+    ]}
+  />
+
+  <div class="flex flex-col gap-y-6">
+    <div>
+      <h1 class="text-3xl font-semibold mb-2">Search</h1>
+      <p class="text-muted-foreground text-sm">
+        Search through {allPosts.length} posts, {allProjects.length} projects, and pages
+      </p>
+    </div>
+
+    <div class="relative">
+      <Icon
+        name="lucide:search"
+        class="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none"
+      />
+      <input
+        type="search"
+        id="search-input"
+        placeholder="Search posts, projects, and pages..."
+        class="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 pl-9 text-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        autofocus
+      />
+    </div>
+
+    <div id="search-results" class="flex flex-col gap-y-4"></div>
+    <div id="search-empty" class="hidden text-center py-12">
+      <p class="text-muted-foreground">No results found. Try a different search term.</p>
+    </div>
+    <div id="search-initial" class="text-center py-12">
+      <p class="text-muted-foreground">Start typing to search...</p>
+    </div>
+  </div>
+</Layout>
+
+<script is:inline define:vars={{ allSearchData }}>
+  (function() {
+    let isInitialized = false
+    let currentInputHandler = null
+
+    function initSearch() {
+      // Prevent multiple initializations
+      if (isInitialized) {
+        return
+      }
+
+      const searchInput = document.getElementById('search-input')
+      const searchResults = document.getElementById('search-results')
+      const searchEmpty = document.getElementById('search-empty')
+      const searchInitial = document.getElementById('search-initial')
+
+      if (!searchInput || !searchResults || !searchEmpty || !searchInitial) {
+        console.error('Search elements not found')
+        return
+      }
+
+      // Remove existing event listener if any
+      if (currentInputHandler) {
+        searchInput.removeEventListener('input', currentInputHandler)
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement('div')
+        div.textContent = text
+        return div.innerHTML
+      }
+
+      function highlightMatch(text, query) {
+        if (!query.trim()) return escapeHtml(text)
+        const regex = new RegExp(`(${escapeRegex(query)})`, 'gi')
+        return escapeHtml(text).replace(regex, '<mark class="bg-primary/20 dark:bg-primary/30 rounded px-0.5">$1</mark>')
+      }
+
+      function escapeRegex(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+      }
+
+      function getTypeLabel(type) {
+        switch(type) {
+          case 'post': return 'Post'
+          case 'project': return 'Project'
+          case 'page': return 'Page'
+          default: return ''
+        }
+      }
+
+      function searchItems(query) {
+        const normalizedQuery = query.toLowerCase().trim()
+
+        if (!normalizedQuery) {
+          searchResults.innerHTML = ''
+          searchEmpty.classList.add('hidden')
+          searchInitial.classList.remove('hidden')
+          return
+        }
+
+        searchInitial.classList.add('hidden')
+
+        const matchingItems = allSearchData.filter((item) => {
+          const titleMatch = item.title.toLowerCase().includes(normalizedQuery)
+          const descriptionMatch = item.description.toLowerCase().includes(normalizedQuery)
+          const tagsMatch = item.tags.some((tag) => tag.toLowerCase().includes(normalizedQuery))
+          return titleMatch || descriptionMatch || tagsMatch
+        })
+
+        if (matchingItems.length === 0) {
+          searchResults.innerHTML = ''
+          searchEmpty.classList.remove('hidden')
+          return
+        }
+
+        searchEmpty.classList.add('hidden')
+
+        searchResults.innerHTML = matchingItems
+          .map(
+            (item) => `
+          <div class="hover:bg-muted/50 rounded-xl border p-4 transition-colors duration-300 ease-in-out">
+            <a href="${item.slug}" class="flex flex-col gap-4 sm:flex-row sm:items-stretch">
+              <div class="grow flex flex-col">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="text-lg font-medium">${highlightMatch(item.title, normalizedQuery)}</h3>
+                  <span class="text-xs text-muted-foreground">${getTypeLabel(item.type)}</span>
+                </div>
+                <p class="text-muted-foreground mb-2 text-sm">${highlightMatch(item.description, normalizedQuery)}</p>
+                ${
+                  item.tags.length > 0
+                    ? `<div class="flex flex-wrap gap-2">
+                        ${item.tags
+                          .map(
+                            (tag) =>
+                              `<span class="inline-flex items-center rounded-md bg-muted px-2 py-1 text-xs font-medium text-foreground">
+                                #${highlightMatch(tag, normalizedQuery)}
+                              </span>`
+                          )
+                          .join('')}
+                      </div>`
+                    : ''
+                }
+              </div>
+            </a>
+          </div>
+        `
+          )
+          .join('')
+      }
+
+      // Create new input handler
+      currentInputHandler = (e) => {
+        const query = e.target.value
+        searchItems(query)
+        // Update URL without reload
+        const url = new URL(window.location.href)
+        if (query) {
+          url.searchParams.set('q', query)
+        } else {
+          url.searchParams.delete('q')
+        }
+        window.history.replaceState({}, '', url.toString())
+      }
+
+      // Handle input changes
+      searchInput.addEventListener('input', currentInputHandler)
+
+      // Handle URL query parameter on load
+      const urlParams = new URLSearchParams(window.location.search)
+      const queryParam = urlParams.get('q')
+      if (queryParam) {
+        searchInput.value = queryParam
+        searchItems(queryParam)
+      }
+
+      isInitialized = true
+    }
+
+    // Wait for DOM to be ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSearch)
+    } else {
+      initSearch()
+    }
+
+    // Re-initialize on Astro view transitions (if enabled)
+    document.addEventListener('astro:page-load', function() {
+      isInitialized = false
+      initSearch()
+    })
+  })()
+</script>
+
+

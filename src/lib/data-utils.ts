@@ -30,6 +30,32 @@ export async function getAllProjects(): Promise<CollectionEntry<'projects'>[]> {
   })
 }
 
+export async function getRecentProjects(
+  count: number,
+): Promise<CollectionEntry<'projects'>[]> {
+  const projects = await getAllProjects()
+  return projects.slice(0, count)
+}
+
+export async function getAllExperiences(): Promise<CollectionEntry<'experience'>[]> {
+  return await getCollection('experience')
+}
+
+export function groupProjectsByYear(
+  projects: CollectionEntry<'projects'>[],
+): Record<string, CollectionEntry<'projects'>[]> {
+  return projects.reduce(
+    (acc: Record<string, CollectionEntry<'projects'>[]>, project) => {
+      const year = project.data.startDate
+        ? project.data.startDate.getFullYear().toString()
+        : 'Unknown'
+      ;(acc[year] ??= []).push(project)
+      return acc
+    },
+    {},
+  )
+}
+
 export async function getAllTags(): Promise<Map<string, number>> {
   const posts = await getAllPosts()
   return posts.reduce((acc, post) => {

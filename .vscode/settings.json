@@ -1,0 +1,4 @@
+{
+  "css.customData": ["./css-custom-data.json"],
+  "css.lint.unknownAtRules": "ignore"
+}
