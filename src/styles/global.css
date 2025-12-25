@@ -5,36 +5,34 @@
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 @theme inline {
+  /* fonts */
   --font-sans:
     Geist, ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
     'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   --font-mono:
     Geist Mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
     'Liberation Mono', 'Courier New', monospace;
+  --font-serif: 
+    'Playfair Display', Georgia, 'Times New Roman', Times, serif;
+
+
+  /* custom fonts */
   --font-caveat: Caveat;
   --font-bon-vivant: 'Bon Vivant';
-  --font-ringift: 'Ringift';
-  --font-monalisa-serif: 'MonalisaSerif';
-  --font-yenisei: 'Yenisei';
-  --font-boiling-black: 'BoilingBlack';
   --font-playfair-display: 'Playfair Display';
-  --font-pp-editorial: 'PP Editorial New';
-
+  --font-pp-editorial-new: 'PP Editorial New';
+  --font-mudstone-sans: 'Mudstone Sans';
+  /* colors */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
-
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
-
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
-
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
-
   --color-border: var(--border);
   --color-ring: var(--ring);
 }
@@ -66,38 +64,6 @@
 @font-face {
   font-family: 'Bon Vivant';
   src: url('/fonts/BonVivant.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Ringift';
-  src: url('/fonts/Ringift.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'MonalisaSerif';
-  src: url('/fonts/MonalisaSerif.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Yenisei';
-  src: url('/fonts/Yenisei.otf') format('opentype');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'BoilingBlack';
-  src: url('/fonts/BoilingBlackDemo.ttf') format('truetype');
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -148,6 +114,14 @@
   src: url('/fonts/PPEditorial/PPEditorialNew-UltraboldItalic.otf') format('opentype');
   font-weight: 800;
   font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Mudstone Sans';
+  src: url('/fonts/MudstoneSans.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
   font-display: swap;
 }
 
@@ -227,5 +201,73 @@
   
   .font-pp-editorial {
     font-family: var(--font-pp-editorial), serif;
+  }
+  
+  .font-caveat {
+    font-family: var(--font-caveat), cursive;
+  }
+  
+  .bg-grid-pattern {
+    position: relative;
+    isolation: isolate;
+  }
+  
+  .bg-grid-pattern::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: 
+      linear-gradient(to right, oklch(0.95 0 0) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0.95 0 0) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: 0 0;
+    animation: grid-move 2s linear infinite;
+    will-change: background-position;
+    mask-image: radial-gradient(
+      ellipse at center,
+      black 0%,
+      black 30%,
+      transparent 70%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse at center,
+      black 0%,
+      black 30%,
+      transparent 70%,
+      transparent 100%
+    );
+    pointer-events: none;
+    mix-blend-mode: normal;
+  }
+  
+  @keyframes grid-move {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 24px 0;
+    }
+  }
+  
+  @-webkit-keyframes grid-move {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 24px 0;
+    }
+  }
+  
+  .bg-grid-pattern > * {
+    position: relative;
+    z-index: 1;
+  }
+  
+  [data-theme='dark'] .bg-grid-pattern::before {
+    background-image: 
+      linear-gradient(to right, oklch(1 0 0 / 0.15) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 0.15) 1px, transparent 1px);
   }
 }

@@ -4,15 +4,15 @@ import Link from './Link.astro'
 import SocialIcons from './SocialIcons.astro'
 ---
 
-<footer class="border-border/50 mt-16 border-t pt-12">
+<footer class="font-pp-editorial-new border-border/50 mt-16 border-t pt-12">
   <div
     class="mx-auto mb-8 flex max-w-screen-md flex-col items-center justify-center gap-2 text-center sm:mb-6"
   >
-    <p class="font-pp-editorial text-muted-foreground text-sm font-normal">
+    <p class="text-muted-foreground">
       &copy; {new Date().getFullYear()} ・ Crafted with <span
         class="text-accent">🤍</span
       > by <Link
-        href="https://theinfinull.workers.dev"
+        href="https://blog.theinfinull.workers.dev/about"
         class="text-accent transition-colors"
         external
         underline>infinull</Link
@@ -23,16 +23,17 @@ import SocialIcons from './SocialIcons.astro'
     </div>
   </div>
 
-  <!-- footer design : DON't CHANGE THIS -->
   <div class="m-0 p-0">
+    <!-- footer infinull typography -->
     <div
-      class="text-accent font-pp-editorial pointer-events-none m-0 mx-auto max-w-screen-md p-0 text-center leading-none font-bold whitespace-nowrap select-none"
+      class="text-accent pointer-events-none m-0 mx-auto max-w-screen-md p-0 text-center leading-none font-bold whitespace-nowrap select-none"
       style="font-size: clamp(0rem, 26vw, 12.4rem); transform: translateY(10%);"
     >
       inﬁnull
     </div>
   </div>
   <div class="w-full px-2">
+    <!-- footer bar code svg -->
     <svg
       width="1422"
       height="87"
@@ -47,5 +48,4 @@ import SocialIcons from './SocialIcons.astro'
         opacity="1"></path>
     </svg>
   </div>
-  <!-- DON't CHANGE THIS -->
 </footer>

@@ -12,56 +12,82 @@ import {
   getRecentPosts,
   getRecentProjects,
 } from '@/lib/data-utils'
+const age = new Date().getFullYear() - 2002
 
 const blog = await getRecentPosts(SITE.featuredPostCount)
 const projects = await getRecentProjects(SITE.featuredProjectCount)
 const experiences = await getAllExperiences()
 ---
 
+<!-- OUTLINE (basically a page for HRs, visitors, and everbody)
+  - Hero Section
+    - ✅ Image
+    - ✅ Name, Some (unique) abt me text.
+    - Read more button to /about 
+    - Download CV button
+    - Some social links
+  - Experience
+  - Skills (idea : what i bring to the table)
+  - Pinned Projects (& button to see all projects) 
+  - Latest Posts (& button to see all posts)
+  - Some credits to astro-erudite template
+-->
 <Layout class="max-w-3xl">
   <PageHead slot="head" title="Home" />
-  <section class="rounded-lg border">
-    <div class="flex flex-col space-y-1.5 p-6">
-      <h3 class="text-3xl leading-none font-medium">er·u·dite</h3>
-      <p class="text-muted-foreground text-sm">
-        /ˈer(y)əˌdīt/ &bull; <span class="font-medium">adjective</span>
-      </p>
+  <section class="bg-grid-pattern">
+    <div
+      class="flex flex-col items-center gap-6 p-6 md:flex-row md:items-start"
+    >
+      <div class="flex flex-1 flex-col items-center space-y-1.5 md:items-start">
+        <h3
+          class="text-accent font-mudstone-sans text-center text-8xl leading-none font-extrabold md:text-left md:text-9xl"
+        >
+          SEDHU
+          <br />
+          <span class="-mt-2 block text-7xl md:text-8xl">MADHAV.</span>
+        </h3>
+        <p
+          class="text-muted-foreground text-l mt-2 text-center font-serif md:text-left"
+        >
+          Developer <span class="text-xs">✦</span> Engineer
+        </p>
+      </div>
+      <div
+        id="profile-image-container"
+        class="group relative rotate-2 shadow-lg transition-transform duration-300 hover:scale-105 hover:rotate-3"
+      >
+        <img
+          src="/static/sedhu-profile-munnar.png"
+          alt="Sedhu Madhav"
+          class="relative block h-auto w-48 transition-shadow duration-300 group-hover:shadow-xl"
+        />
+        <p
+          class="font-caveat text-foreground dark:text-background absolute -bottom-[-.75rem] left-1/2 -translate-x-1/2 text-sm whitespace-nowrap"
+        >
+          yeah thats me :)
+        </p>
+      </div>
     </div>
     <div class="p-6 pt-0">
-      <p class="text-muted-foreground font-playfair-display mb-2 text-xl">
-        astro-erudite is an opinionated, unstyled static blogging template built
-        with <Link
-          href="https://astro.build"
+      <p class="text-muted-foreground text-l mb-2 font-serif">
+        <span class="text-foreground">{age}</span> year old guy who's obsessed with
+        building cool stuff using code and some caffine ☕. 1+ years at <Link
+          href="https://www.zoho.com"
           class="text-foreground"
           external
-          underline>Astro</Link
-        >, <Link
-          href="https://tailwindcss.com"
-          class="text-foreground"
-          external
-          underline>Tailwind</Link
-        >, and <Link
-          href="https://ui.shadcn.com"
-          class="text-foreground"
-          external
-          underline>shadcn/ui</Link
-        >. Extraordinarily loosely based on the <Link
-          href="https://astro-micro.vercel.app/"
-          class="text-foreground"
-          external
-          underline>Astro Micro</Link
-        > theme.
+          underline>Zoho</Link
+        > Scaling and Navigating 20+ year old legacy codebases.
       </p>
-      <p
-        class="text-muted-foreground font-playfair-display pt-4 text-sm text-xl"
-      >
-        To use this template, check out the <Link
-          href="https://github.com/jktrn/astro-erudite"
+      <p class="text-muted-foreground font-playfair-display text-l pt-4">
+        Currently scaling Java backends, but I juggle multiple stacks when the
+        problem demands it. When the IDE closes, I <Link
+          href="/blog"
           class="text-foreground"
           underline
-          external>GitHub</Link
-        > repository. To learn more about why this template exists, read this blog
-        post: <Link
+          external>Blog</Link
+        > - deconstructing the "hard stuff" I've learned to save the next dev some
+        gray hairs repository. To learn more about why this template exists, read
+        this blog post: <Link
           href="/blog/the-state-of-static-blogs"
           class="text-foreground"
           underline>The State of Static Blogs in 2024</Link
