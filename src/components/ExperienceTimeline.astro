@@ -97,7 +97,7 @@ const sortedExperiences = experiences.sort((a, b) => {
               {exp.data.badges && exp.data.badges.length > 0 && (
                 <div class="mt-4 flex flex-wrap gap-2">
                   {exp.data.badges.map((badge) => (
-                    <span class="border-border bg-muted/50 text-muted-foreground inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium">
+                    <span class="bg-muted/90 text-muted-foreground/80 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium">
                       <Icon name={badge.icon} class="size-3.5" />
                       {badge.label}
                     </span>

@@ -1,7 +1,6 @@
 ---
-import Link from '@/components/Link.astro'
-import { Badge } from '@/components/ui/badge'
-import { formatDate } from '@/lib/utils'
+import AnimatedButton from '@/components/AnimatedButton.astro'
+import { ICON_MAP, getIconColor, getIconName } from '@/consts'
 import { Icon } from 'astro-icon/components'
 import { Image } from 'astro:assets'
 import type { CollectionEntry } from 'astro:content'
@@ -14,57 +13,99 @@ const { project } = Astro.props
 ---
 
 <div
-  class="hover:bg-muted/50 rounded-xl border p-4 transition-colors duration-300 ease-in-out"
+  class="flex flex-col overflow-hidden rounded-xl border transition-all duration-300 ease-in-out hover:scale-[1.01] hover:shadow-lg sm:flex-row sm:items-stretch"
 >
-  <Link
-    href={project.data.link}
-    class="flex flex-col gap-4 sm:flex-row"
-    external
-  >
+  {
+    project.data.image && (
+      <div class="border-border w-full overflow-hidden border-b sm:max-w-3xs sm:shrink-0 sm:self-stretch sm:border-r sm:border-b-0">
+        <Image
+          src={project.data.image}
+          alt={project.data.name}
+          width={1200}
+          height={630}
+          class="h-full w-full object-cover"
+        />
+      </div>
+    )
+  }
+  <div class="flex grow flex-col p-4">
+    <div class="flex grow flex-col gap-4">
+      <div>
+        <h3 class="mb-1 text-xl font-bold">
+          {project.data.name}
+        </h3>
+        <p class="text-muted-foreground mb-2 text-sm">
+          {project.data.description}
+        </p>
+        {
+          project.data.tags && (
+            <div class="flex flex-wrap gap-2">
+              {project.data.tags.map((tag: string) => {
+                const iconEntry = ICON_MAP[tag as keyof typeof ICON_MAP]
+                const iconName = getIconName(iconEntry)
+                const iconColor = getIconColor(iconEntry)
+                return (
+                  <span class="text-muted-foreground bg-muted/30 flex items-center gap-1.5 rounded-sm px-1.5 py-0.5 text-xs">
+                    <Icon
+                      name={iconName || 'lucide:code'}
+                      class="size-2.5"
+                      style={iconColor ? `color: ${iconColor}` : undefined}
+                    />
+                    {tag}
+                  </span>
+                )
+              })}
+            </div>
+          )
+        }
+      </div>
+    </div>
     {
-      project.data.image && (
-        <div class="w-full sm:max-w-3xs sm:shrink-0">
-          <Image
-            src={project.data.image}
-            alt={project.data.name}
-            width={1200}
-            height={630}
-            class="object-cover"
-          />
+      (project.data.sourceCodeLink ||
+        project.data.siteLink ||
+        project.data.relatedBlogsLink) && (
+        <div class="mt-4 flex flex-wrap gap-2 border-t pt-4">
+          {project.data.sourceCodeLink && (
+            <AnimatedButton
+              href={project.data.sourceCodeLink}
+              external
+              variant="outline"
+              size="sm"
+              class="w-full flex-1 grow justify-center"
+              icon="lucide:code"
+              iconPosition="left"
+            >
+              Source Code
+            </AnimatedButton>
+          )}
+          {project.data.relatedBlogsLink && (
+            <AnimatedButton
+              href={project.data.relatedBlogsLink}
+              variant="outline"
+              size="sm"
+              class="bg-accent hover:bg-accent/80 hover:text-background text-background dark:hover:bg-accent/80 w-full flex-1 grow justify-center"
+              class="w-full flex-1 grow justify-center"
+              icon="lucide:book-open"
+              iconPosition="left"
+            >
+              Related Blogs
+            </AnimatedButton>
+          )}
+          {project.data.siteLink && (
+            <AnimatedButton
+              href={project.data.siteLink}
+              external
+              variant="default"
+              size="sm"
+              class="w-full flex-1 grow justify-center"
+              icon="lucide:arrow-right"
+              iconPosition="right"
+            >
+              Visit Site
+            </AnimatedButton>
+          )}
         </div>
       )
     }
-    <div class="grow">
-      <h3 class="mb-1 text-lg font-medium">
-        {project.data.name}
-      </h3>
-      <p class="text-muted-foreground mb-2 text-sm">
-        {project.data.description}
-      </p>
-      {
-        project.data.startDate && (
-          <p class="text-muted-foreground/70 mb-2 flex items-center gap-x-1.5 text-xs">
-            <span class="flex items-center gap-x-1.5">
-              <Icon name="lucide:calendar" class="size-3" />
-              <span>
-                {formatDate(project.data.startDate)}
-                {project.data.endDate
-                  ? ` → ${formatDate(project.data.endDate)}`
-                  : ' → Present'}
-              </span>
-            </span>
-          </p>
-        )
-      }
-      {
-        project.data.tags && (
-          <div class="flex flex-wrap gap-2">
-            {project.data.tags.map((tag: string) => (
-              <Badge variant="muted">{tag}</Badge>
-            ))}
-          </div>
-        )
-      }
-    </div>
-  </Link>
+  </div>
 </div>

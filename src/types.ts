@@ -16,6 +16,14 @@ export type SocialLink = {
   hideBelowPx?: number
 }
 
+export type IconEntry = string | { icon: string; color: string }
+
 export type IconMap = {
-  [key: string]: string
+  [key: string]: IconEntry
+}
+
+export type Person = {
+  name: string
+  birthDate: Date
+  age: number
 }

@@ -24,6 +24,7 @@
     "@expressive-code/plugin-collapsible-sections": "^0.41.5",
     "@expressive-code/plugin-line-numbers": "^0.41.5",
     "@iconify-json/lucide": "^1.2.81",
+    "@iconify-json/simple-icons": "^1.2.63",
     "@iconify/react": "^6.0.2",
     "@tailwindcss/vite": "^4.1.18",
     "@types/react": "19.2.7",

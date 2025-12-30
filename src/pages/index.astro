@@ -1,39 +1,41 @@
 ---
+import AnimatedButton from '@/components/AnimatedButton.astro'
 import BlogCard from '@/components/BlogCard.astro'
 import ExperienceTimeline from '@/components/ExperienceTimeline.astro'
 import Link from '@/components/Link.astro'
 import PageHead from '@/components/PageHead.astro'
 import ProjectCard from '@/components/ProjectCard.astro'
+import SocialIcons from '@/components/SocialIcons.astro'
 import { buttonVariants } from '@/components/ui/button'
-import { SITE } from '@/consts'
+import { ME, SITE, SOCIAL_LINKS } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 import {
   getAllExperiences,
+  getFeaturedProjects,
   getRecentPosts,
-  getRecentProjects,
 } from '@/lib/data-utils'
-const age = new Date().getFullYear() - 2002
-
 const blog = await getRecentPosts(SITE.featuredPostCount)
-const projects = await getRecentProjects(SITE.featuredProjectCount)
+const projects = await getFeaturedProjects(SITE.featuredProjectCount)
 const experiences = await getAllExperiences()
+const cvPath = '/static/cv-common.pdf'
 ---
 
 <!-- OUTLINE (basically a page for HRs, visitors, and everbody)
   - Hero Section
     - ✅ Image
     - ✅ Name, Some (unique) abt me text.
-    - Read more button to /about 
-    - Download CV button
-    - Some social links
+    - ✅ Read more button to /about 
+    - ✅ Download CV button
+    - ✅ Some social links
   - Experience
-  - Skills (idea : what i bring to the table)
+  - Skills (idea : what i bring to the table) [Rejected : https://www.reddit.com/r/webdev/comments/1bvfxwq/regarding_developer_portfolio_websites_what_is/] 
   - Pinned Projects (& button to see all projects) 
   - Latest Posts (& button to see all posts)
   - Some credits to astro-erudite template
 -->
 <Layout class="max-w-3xl">
   <PageHead slot="head" title="Home" />
+  <!-- Hero Section -->
   <section class="bg-grid-pattern">
     <div
       class="flex flex-col items-center gap-6 p-6 md:flex-row md:items-start"
@@ -59,7 +61,7 @@ const experiences = await getAllExperiences()
         <img
           src="/static/sedhu-profile-munnar.png"
           alt="Sedhu Madhav"
-          class="relative block h-auto w-48 transition-shadow duration-300 group-hover:shadow-xl"
+          class="group-hover:shadow-foreground/15 relative block h-auto w-48 transition-shadow duration-300 group-hover:shadow-xl"
         />
         <p
           class="font-caveat text-foreground dark:text-background absolute -bottom-[-.75rem] left-1/2 -translate-x-1/2 text-sm whitespace-nowrap"
@@ -68,40 +70,82 @@ const experiences = await getAllExperiences()
         </p>
       </div>
     </div>
-    <div class="p-6 pt-0">
-      <p class="text-muted-foreground text-l mb-2 font-serif">
-        <span class="text-foreground">{age}</span> year old guy who's obsessed with
-        building cool stuff using code and some caffine ☕. 1+ years at <Link
+    <div class="px-6">
+      <p class="text-l text-muted-foreground mb-2 font-serif">
+        <span class="text-foreground">{ME.age}</span> year old <span
+          class="text-foreground">👨🏻‍💻 Web Developer</span
+        > based in 📌
+        <Link
+          href="https://www.google.com/maps/place/Coimbatore,+Tamil+Nadu"
+          class="text-foreground"
+          external
+          underline>Coimbatore, India</Link
+        >. 1+ years at <Link
           href="https://www.zoho.com"
           class="text-foreground"
           external
           underline>Zoho</Link
-        > Scaling and Navigating 20+ year old legacy codebases.
+        >, scaling and modernizing 20+ year old legacy codebases. Obsessed with
+        building cool stuff with code and some caffine ☕.
       </p>
-      <p class="text-muted-foreground font-playfair-display text-l pt-4">
-        Currently scaling Java backends, but I juggle multiple stacks when the
-        problem demands it. When the IDE closes, I <Link
+      <p class="text-muted-foreground text-l pt-4 font-serif">
+        Currently working on enterprise Java backends, but I juggle multiple
+        stacks when the problem demands it. I also ✍🏻 <Link
           href="/blog"
           class="text-foreground"
           underline
           external>Blog</Link
-        > - deconstructing the "hard stuff" I've learned to save the next dev some
-        gray hairs repository. To learn more about why this template exists, read
-        this blog post: <Link
-          href="/blog/the-state-of-static-blogs"
-          class="text-foreground"
-          underline>The State of Static Blogs in 2024</Link
-        >.
+        > the cool stuff I find worth sharing with the world.
       </p>
+      <div class="mt-8 flex flex-col items-center gap-8 md:items-start">
+        <div class="flex flex-wrap items-center justify-center gap-3">
+          <AnimatedButton
+            href={cvPath}
+            icon="lucide:download"
+            iconPosition="left"
+            variant="default"
+          >
+            Resume
+          </AnimatedButton>
+          <AnimatedButton
+            href="/about"
+            icon="lucide:arrow-right"
+            iconPosition="right"
+            variant="outline"
+          >
+            Read more
+          </AnimatedButton>
+        </div>
+        <SocialIcons links={SOCIAL_LINKS} />
+      </div>
     </div>
   </section>
 
+  <!-- Experience Section -->
   <section>
-    <h2 class="mb-4 pt-6 text-2xl font-medium">Experience</h2>
+    <h2 class="mt-12 text-5xl font-bold">
+      Experience<span class="text-accent">.</span>
+    </h2>
+    <p class="text-muted-foreground mb-6 text-2xl">
+      Where I've <span
+        class="text-foreground decoration-accent font-serif italic underline"
+        >Worked</span
+      > so far.
+    </p>
     <ExperienceTimeline experiences={experiences} />
   </section>
-  <section class="flex flex-col gap-y-4">
-    <h2 class="text-2xl font-medium">Recent projects</h2>
+
+  <!-- Works Section-->
+  <section class="mt-12 flex flex-col">
+    <h2 class="text-5xl font-bold">
+      Works<span class="text-accent">.</span>
+    </h2>
+    <p class="text-muted-foreground mb-4 text-2xl">
+      Stuff, I've <span
+        class="text-foreground decoration-accent font-serif italic underline"
+        >Built</span
+      > recently
+    </p>
     <ul class="flex flex-col gap-y-4">
       {
         projects.map((project) => (
@@ -111,7 +155,7 @@ const experiences = await getAllExperiences()
         ))
       }
     </ul>
-    <div class="flex justify-center">
+    <div class="mt-4 flex justify-center">
       <Link
         href="/projects"
         class={buttonVariants({ variant: 'ghost' }) + ' group'}
@@ -123,8 +167,18 @@ const experiences = await getAllExperiences()
       </Link>
     </div>
   </section>
-  <section class="flex flex-col gap-y-4">
-    <h2 class="text-2xl font-medium">Latest posts</h2>
+
+  <!-- Latest Posts Section -->
+  <section class="mt-12 flex flex-col">
+    <h2 class="text-5xl font-bold">
+      Posts<span class="text-accent">.</span>
+    </h2>
+    <p class="text-muted-foreground mb-6 text-2xl">
+      Stuff, I've <span
+        class="text-foreground decoration-accent font-serif italic underline"
+        >Blogged</span
+      > about.
+    </p>
     <ul class="flex flex-col gap-y-4">
       {
         blog.map((post) => (
@@ -134,7 +188,7 @@ const experiences = await getAllExperiences()
         ))
       }
     </ul>
-    <div class="flex justify-center">
+    <div class="mt-4 flex justify-center">
       <Link
         href="/blog"
         class={buttonVariants({ variant: 'ghost' }) + ' group'}

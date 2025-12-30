@@ -37,6 +37,28 @@ export async function getRecentProjects(
   return projects.slice(0, count)
 }
 
+export async function getFeaturedProjects(
+  count: number,
+): Promise<
+  CollectionEntry<'projects'>[]
+> {
+  const projects = await getAllProjects()
+  const featuredProjects = projects
+    .filter((project) => project.data.featured === true)
+    .sort((a, b) => {
+      // Sort by order first (lower numbers first), then by startDate
+      const orderA = a.data.order ?? Infinity
+      const orderB = b.data.order ?? Infinity
+      if (orderA !== orderB) {
+        return orderA - orderB
+      }
+      const dateA = a.data.startDate?.getTime() || 0
+      const dateB = b.data.startDate?.getTime() || 0
+      return dateB - dateA
+    })
+  return featuredProjects.slice(0, count)
+}
+
 export async function getAllExperiences(): Promise<CollectionEntry<'experience'>[]> {
   return await getCollection('experience')
 }

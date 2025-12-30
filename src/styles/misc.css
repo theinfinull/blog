@@ -1,0 +1,66 @@
+@layer utilities {
+  .bg-grid-pattern {
+    position: relative;
+    isolation: isolate;
+  }
+  
+  .bg-grid-pattern::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: 
+      linear-gradient(to right, oklch(0.95 0 0) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0.95 0 0) 1px, transparent 1px);
+    background-size: 24px 24px;
+    background-position: 0 0;
+    animation: grid-move 2s linear infinite;
+    will-change: background-position;
+    mask-image: radial-gradient(
+      ellipse at center,
+      black 0%,
+      black 30%,
+      transparent 70%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse at center,
+      black 0%,
+      black 30%,
+      transparent 70%,
+      transparent 100%
+    );
+    pointer-events: none;
+    mix-blend-mode: normal;
+  }
+  
+  @keyframes grid-move {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 24px 0;
+    }
+  }
+  
+  @-webkit-keyframes grid-move {
+    0% {
+      background-position: 0 0;
+    }
+    100% {
+      background-position: 24px 0;
+    }
+  }
+  
+  .bg-grid-pattern > * {
+    position: relative;
+    z-index: 1;
+  }
+  
+  [data-theme='dark'] .bg-grid-pattern::before {
+    background-image: 
+      linear-gradient(to right, oklch(1 0 0 / 0.15) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(1 0 0 / 0.15) 1px, transparent 1px);
+  }
+}
+
