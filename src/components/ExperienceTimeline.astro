@@ -33,7 +33,7 @@ const sortedExperiences = experiences.sort((a, b) => {
         <div class="relative">
           {index < sortedExperiences.length - 1 && (
             <div
-              class="bg-border absolute top-14 bottom-[-2rem] left-[19px] w-[1px]"
+              class="bg-border absolute top-14 bottom-[-2rem] left-[19px] w-px"
               aria-hidden="true"
             />
           )}
@@ -43,7 +43,7 @@ const sortedExperiences = experiences.sort((a, b) => {
             <Link
               href={exp.data.companyUrl!}
               external
-              class="relative block flex-shrink-0"
+              class="relative block shrink-0"
             >
               <div
                 class={cn(
