@@ -14,6 +14,8 @@ import {
   getFeaturedProjects,
   getRecentPosts,
 } from '@/lib/data-utils'
+import { Image } from 'astro:assets'
+import profileImage from '/public/static/common/munnar-paperframe1.png'
 const blog = await getRecentPosts(SITE.featuredPostCount)
 const projects = await getFeaturedProjects(SITE.featuredProjectCount)
 const experiences = await getAllExperiences()
@@ -58,8 +60,8 @@ const cvPath = '/static/cv-common.pdf'
         id="profile-image-container"
         class="group relative rotate-2 shadow-lg transition-transform duration-300 hover:scale-105 hover:rotate-3"
       >
-        <img
-          src="/static/sedhu-profile-munnar.png"
+        <Image
+          src={profileImage}
           alt="Sedhu Madhav"
           class="group-hover:shadow-foreground/15 relative block h-auto w-48 transition-shadow duration-300 group-hover:shadow-xl"
         />

@@ -11,6 +11,9 @@ import Layout from '@/layouts/Layout.astro'
 import { getAllExperiences } from '@/lib/data-utils'
 import { cn } from '@/lib/utils'
 import type { SocialLink } from '@/types'
+import { Image } from 'astro:assets'
+import infinullImage from '/public/static/common/infinull-paperframe.png'
+import profileImage from '/public/static/common/munnar-paperframe2.png'
 
 // Data
 const experiences = await getAllExperiences()
@@ -61,10 +64,10 @@ const contactSocialLinks: SocialLink[] = [
       <div class="relative flex items-center justify-center">
         <!-- My Profile -->
         <div
-          class="group relative z-0 rotate-[-2deg] transition-transform duration-300 hover:scale-105 hover:rotate-[-4deg]"
+          class="group relative z-0 -rotate-2 transition-transform duration-300 hover:scale-105 hover:rotate-[-4deg]"
         >
-          <img
-            src="/static/sedhu-profile-munnar2.png"
+          <Image
+            src={profileImage}
             alt="Sedhu Madhav"
             class="group-hover:shadow-foreground/15 relative block h-auto w-48 shadow-lg transition-shadow duration-300 group-hover:shadow-xl"
           />
@@ -76,10 +79,10 @@ const contactSocialLinks: SocialLink[] = [
         </div>
         <!-- Infinull Profile -->
         <div
-          class="group relative z-10 -ml-8 rotate-[2deg] transition-transform duration-300 hover:scale-105 hover:rotate-[4deg]"
+          class="group relative z-10 -ml-8 rotate-2 transition-transform duration-300 hover:scale-105 hover:rotate-4"
         >
-          <img
-            src="/static/infinull-profile-paperframe.png"
+          <Image
+            src={infinullImage}
             alt="Infinull logo"
             class="group-hover:shadow-foreground/15 relative block h-auto w-32 translate-y-14 shadow-lg transition-shadow duration-300 group-hover:shadow-xl"
           />
