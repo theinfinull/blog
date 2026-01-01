@@ -1,6 +1,6 @@
 ---
 name: 'Snake : JavaFX Game'
-description: 'Designed for hosting Reverse Coding contest for inter-colllege Symposium, challenging devs to decode hidden logic through black-box testing'
+description: 'The Classic Snake game built from scratch with Java Swing.'
 featured: true
 order: 2
 tags: ['java', 'java-swing', 'maven']

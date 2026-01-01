@@ -1,6 +1,5 @@
 ---
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
-import Link from '@/components/Link.astro'
 import PostHead from '@/components/PostHead.astro'
 import PostNavigation from '@/components/PostNavigation.astro'
 import SubpostsHeader from '@/components/SubpostsHeader.astro'
@@ -9,6 +8,7 @@ import TOCHeader from '@/components/TOCHeader.astro'
 import TOCSidebar from '@/components/TOCSidebar.astro'
 import { badgeVariants } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { ICON_MAP, getIconColor, getIconName } from '@/consts'
 import Layout from '@/layouts/Layout.astro'
 import {
   getAdjacentPosts,
@@ -21,13 +21,13 @@ import {
   getTOCSections,
   hasSubposts,
   isSubpost,
-  parseAuthors,
 } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
-import { defaultBanner } from '@/lib/assets'
 import { Icon } from 'astro-icon/components'
 import { Image } from 'astro:assets'
 import { render } from 'astro:content'
+import defaultBanner from '/public/static/common/default-banner-1200x630.png'
+import logo from '/public/static/common/logo.png'
 
 export async function getStaticPaths() {
   const posts = await getAllPostsAndSubposts()
@@ -40,7 +40,6 @@ export async function getStaticPaths() {
 const post = Astro.props
 const currentPostId = Astro.params.id
 const { Content, headings } = await render(post)
-const authors = await parseAuthors(post.data.authors ?? [])
 
 const isCurrentSubpost = isSubpost(currentPostId)
 const navigation = await getAdjacentPosts(currentPostId)
@@ -129,34 +128,14 @@ const tocSections = await getTOCSections(currentPostId)
         <div
           class="text-muted-foreground divide-border mb-4 flex flex-col items-center justify-center divide-y text-xs sm:flex-row sm:flex-wrap sm:divide-x sm:divide-y-0 sm:text-sm"
         >
-          {
-            authors.length > 0 && (
-              <div class="flex w-full items-center justify-center gap-x-2 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0">
-                {authors.map((author) => (
-                  <div class="flex items-center gap-x-1.5">
-                    <Image
-                      src={author.avatar}
-                      alt={author.name}
-                      width={20}
-                      height={20}
-                      class="rounded-full"
-                    />
-                    {author.isRegistered ? (
-                      <Link
-                        href={`/authors/${author.id}`}
-                        underline
-                        class="text-foreground"
-                      >
-                        <span>{author.name}</span>
-                      </Link>
-                    ) : (
-                      <span>{author.name}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )
-          }
+          <div
+            class="flex w-full items-center justify-center gap-x-2 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0"
+          >
+            <div class="flex items-center gap-x-1.5">
+              <Image src={logo} alt="infinull" class="size-5 rounded-full" />
+              <span class="text-foreground">infinull</span>
+            </div>
+          </div>
 
           <div
             class="flex w-full items-center justify-center gap-2 py-2 sm:w-fit sm:px-2 sm:py-0 first:sm:pl-0 last:sm:pr-0"
@@ -194,15 +173,27 @@ const tocSections = await getTOCSections(currentPostId)
           {
             post.data.tags &&
               post.data.tags.length > 0 &&
-              post.data.tags.map((tag) => (
-                <a
-                  href={`/tags/${tag}`}
-                  class={badgeVariants({ variant: 'muted' })}
-                >
-                  <Icon name="lucide:hash" class="size-3" />
-                  {tag}
-                </a>
-              ))
+              post.data.tags.map((tag) => {
+                const iconEntry = ICON_MAP[tag as keyof typeof ICON_MAP]
+                const iconName = getIconName(iconEntry) || 'lucide:hash'
+                const iconColor = getIconColor(iconEntry)
+                return (
+                  <a
+                    href={`/tags/${tag}`}
+                    class={badgeVariants({
+                      variant: 'muted',
+                      class: 'bg-muted/50',
+                    })}
+                  >
+                    <Icon
+                      name={iconName}
+                      class="size-3"
+                      style={iconColor ? `color: ${iconColor}` : undefined}
+                    />
+                    {tag}
+                  </a>
+                )
+              })
           }
         </div>
       </div>
@@ -273,7 +264,7 @@ const tocSections = await getTOCSections(currentPostId)
 
           scrollToTopButton.classList.toggle(
             'hidden',
-            window.scrollY <= 300 || isFooterVisible,
+            window.scrollY <= 300 || isFooterVisible
           )
         })
       }

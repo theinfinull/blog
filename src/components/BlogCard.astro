@@ -1,19 +1,19 @@
 ---
-import AvatarComponent from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { ICON_MAP, getIconColor, getIconName } from '@/consts'
 import {
   getCombinedReadingTime,
   getSubpostCount,
   isSubpost,
-  parseAuthors,
 } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
-import { defaultBanner } from '@/lib/assets'
 import { Icon } from 'astro-icon/components'
 import { Image } from 'astro:assets'
 import type { CollectionEntry } from 'astro:content'
 import Link from './Link.astro'
+import defaultBanner from '/public/static/common/default-banner-1200x630.png'
+import logo from '/public/static/common/logo.png'
 
 interface Props {
   entry: CollectionEntry<'blog'>
@@ -22,18 +22,19 @@ interface Props {
 const { entry } = Astro.props
 const formattedDate = formatDate(entry.data.date)
 const readTime = await getCombinedReadingTime(entry.id)
-const authors = await parseAuthors(entry.data.authors ?? [])
 const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
 ---
 
 <div
-  class="hover:bg-muted/50 rounded-xl border p-4 transition-colors duration-300 ease-in-out"
+  class="hover:bg-muted/50 overflow-hidden rounded-xl border transition-all duration-300 ease-in-out hover:scale-[1.01] hover:shadow-lg"
 >
   <Link
     href={`/${entry.collection}/${entry.id}`}
-    class="flex flex-col gap-4 sm:flex-row sm:items-stretch"
+    class="flex flex-col sm:flex-row sm:items-stretch"
   >
-    <div class="w-full sm:max-w-3xs sm:shrink-0 sm:self-stretch overflow-hidden rounded-sm">
+    <div
+      class="border-border w-full overflow-hidden border-b sm:max-w-3xs sm:shrink-0 sm:self-stretch sm:border-r sm:border-b-0"
+    >
       <Image
         src={entry.data.image || defaultBanner}
         alt={entry.data.title}
@@ -43,32 +44,18 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
       />
     </div>
 
-    <div class="grow flex flex-col">
+    <div class="flex grow flex-col p-4">
       <h3 class="mb-1 text-lg font-medium">{entry.data.title}</h3>
       <p class="text-muted-foreground mb-2 text-sm">{entry.data.description}</p>
 
       <div
-        class="text-muted-foreground mb-2 flex flex-wrap items-center gap-x-2 text-xs"
+        class="text-muted-foreground mb-3 flex flex-wrap items-center gap-x-2 text-xs"
       >
-        {
-          authors.length > 0 && (
-            <>
-              {authors.map((author) => (
-                <div class="flex items-center gap-x-1.5">
-                  <AvatarComponent
-                    client:load
-                    src={author.avatar}
-                    alt={author.name}
-                    fallback={author.name[0]}
-                    className="size-5 rounded-full"
-                  />
-                  <span>{author.name}</span>
-                </div>
-              ))}
-              <Separator orientation="vertical" className="h-4!" />
-            </>
-          )
-        }
+        <div class="flex items-center gap-x-1.5">
+          <Image src={logo} alt="infinull" class="size-4 rounded-full" />
+          <span>infinull</span>
+        </div>
+        <Separator orientation="vertical" className="h-4!" />
         <span>{formattedDate}</span>
         <Separator orientation="vertical" className="h-4!" />
         <span>{readTime}</span>
@@ -88,12 +75,24 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
       {
         entry.data.tags && (
           <div class="flex flex-wrap gap-2">
-            {entry.data.tags.map((tag) => (
-              <Badge variant="muted" className="flex items-center gap-x-1">
-                <Icon name="lucide:hash" class="size-3" />
-                {tag}
-              </Badge>
-            ))}
+            {entry.data.tags.map((tag) => {
+              const iconEntry = ICON_MAP[tag as keyof typeof ICON_MAP]
+              const iconName = getIconName(iconEntry) || 'lucide:hash'
+              const iconColor = getIconColor(iconEntry)
+              return (
+                <Badge
+                  variant="muted"
+                  className="flex bg-muted/30 border border-border items-center gap-x-1"
+                >
+                  <Icon
+                    name={iconName}
+                    class="size-3"
+                    style={iconColor ? `color: ${iconColor}` : undefined}
+                  />
+                  {tag}
+                </Badge>
+              )
+            })}
           </div>
         )
       }
