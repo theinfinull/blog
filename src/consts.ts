@@ -3,9 +3,9 @@ import type { IconEntry, IconMap, SocialLink, Site, Person } from '@/types'
 export const SITE: Site = {
   title: 'infinull',
   description:
-    'astro-erudite is a opinionated, unstyled blogging template—built with Astro, Tailwind, and shadcn/ui.',
-  href: 'https://blog.theinfinull.workers.dev',
-  author: 'theinfinull',
+    'Portfolio and Blog of Sedhu Madhav (aka infinull)',
+  href: 'https://portfolio.theinfinull.workers.dev',
+  author: 'infinull',
   locale: 'en-US',
   featuredPostCount: 2,
   featuredProjectCount: 3,
