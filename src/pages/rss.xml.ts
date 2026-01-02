@@ -38,11 +38,22 @@ function createRssItem(post: CollectionEntry<'blog'>, siteUrl: string) {
   }
 }
 
+function getSiteUrl(context: APIContext): string {
+  // for production, using the environment variable
+  const productionUrl = import.meta.env.PUBLIC_SITE_URL
+  if (productionUrl) {
+    return productionUrl
+  }
+  
+  // for dev, using the context URL
+  return context.url.origin
+}
+
 // Main
 export async function GET(context: APIContext) {
   try {
     const posts = await getAllPosts()
-    const siteUrl = context.url.origin
+    const siteUrl = getSiteUrl(context)
 
     return rss({
       title: SITE.title,
