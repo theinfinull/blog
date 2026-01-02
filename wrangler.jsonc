@@ -9,5 +9,8 @@
   },
   "observability": {
     "enabled": true
+  },
+  "vars": {
+    "PUBLIC_SITE_URL": "https://portfolio.theinfinull.workers.dev"
   }
 }
