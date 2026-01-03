@@ -28,13 +28,21 @@ function createImageUrl(imageSrc: string | undefined, siteUrl: string): string {
 function createRssItem(post: CollectionEntry<'blog'>, siteUrl: string) {
   const imageUrl = createImageUrl(post.data.image?.src, siteUrl)
   const imageType = getImageMimeType(imageUrl)
+  const postUrl = new URL(`/blog/${post.id}/`, siteUrl).toString()
+
+  // RSS content: banner image, description, and read more link
+  const content = `
+    <img src="${imageUrl}" alt="${post.data.title}" />
+    <p>${post.data.description}</p>
+    <p><a href="${postUrl}">Read more →</a></p>
+  `.trim()
 
   return {
     title: post.data.title,
     description: post.data.description,
     pubDate: post.data.date,
     link: `/blog/${post.id}/`,
-    content: `<img src="${imageUrl}" alt="${post.data.title}" />`,
+    content,
     customData: `<enclosure url="${imageUrl}" type="${imageType}" />`,
   }
 }
