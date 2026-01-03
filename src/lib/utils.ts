@@ -37,6 +37,7 @@ export function getHeadingMargin(depth: number): string {
   return margins[depth] || ''
 }
 
+// NOTE: this function is only used in ts files, in astro files, you can use Astro.url.origin directly. ref @PageHead.astro, @PostHead.astro
 export function getSiteUrl(context: APIContext): URL {
   // for dev, use the context.origin.url
   if (import.meta.env.DEV) {
