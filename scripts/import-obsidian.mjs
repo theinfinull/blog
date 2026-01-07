@@ -60,7 +60,7 @@ async function processNote(filePath) {
     );
 
     // process images
-    const { content: processedBody, results: imageResults } = processImages(
+    const { content: processedBody, results: imageResults } = await processImages(
       body,
       SOURCE_ATTACHMENT_DIR,
       destinationDir

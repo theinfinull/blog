@@ -134,6 +134,17 @@ export function processFrontmatter(frontmatter, filename, getBasename) {
   frontmatter.tags = normalizeArray(frontmatter.tags);
   frontmatter.authors = normalizeArray(frontmatter.authors);
 
+  // clean tags: remove "#" prefix if present (Obsidian format)
+  if (Array.isArray(frontmatter.tags)) {
+    frontmatter.tags = frontmatter.tags.map(tag => {
+      if (typeof tag === "string") {
+        // remove "#" prefix if present
+        return tag.startsWith("#") ? tag.slice(1) : tag;
+      }
+      return tag;
+    });
+  }
+
   return frontmatter;
 }
 
