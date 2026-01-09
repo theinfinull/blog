@@ -1,4 +1,5 @@
 ---
+import BannerImage from '@/components/BannerImage.astro'
 import Breadcrumbs from '@/components/Breadcrumbs.astro'
 import PostHead from '@/components/PostHead.astro'
 import PostNavigation from '@/components/PostNavigation.astro'
@@ -24,7 +25,6 @@ import {
 } from '@/lib/data-utils'
 import { formatDate } from '@/lib/utils'
 import { Icon } from 'astro-icon/components'
-import { Image } from 'astro:assets'
 import { render } from 'astro:content'
 
 export async function getStaticPaths() {
@@ -106,10 +106,9 @@ const tocSections = await getTOCSections(currentPostId)
       />
     </div>
 
-    {/* prettier-ignore */}
-    {/* @ts-expect-error - Astro Image accepts ImageMetadata | string */}
-    <Image
-      src={post.data.image ?? SITE.defaultPostBanner}
+    <BannerImage
+      src={post.data.image}
+      defaultSrc={SITE.defaultPostBanner}
       alt={post.data.title}
       width={1200}
       height={630}
