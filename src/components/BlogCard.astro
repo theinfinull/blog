@@ -47,7 +47,15 @@ const subpostCount = !isSubpost(entry.id) ? await getSubpostCount(entry.id) : 0
       <p class="text-muted-foreground mb-2 text-sm">{entry.data.description}</p>
 
       <p class="text-muted-foreground/60 mb-6 text-xs">
-        <span>{formattedDate}</span> • {readTime}
+        <span>{formattedDate}</span> &nbsp;•&nbsp; {readTime}
+        {
+          subpostCount > 0 && (
+            <>
+              &nbsp;•&nbsp; {subpostCount}{' '}
+              {subpostCount === 1 ? ' subpost' : ' subposts'}
+            </>
+          )
+        }
       </p>
 
       {

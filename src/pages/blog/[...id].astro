@@ -129,7 +129,23 @@ const tocSections = await getTOCSections(currentPostId)
         </p>
 
         <p class="text-muted-foreground/80 mb-6 text-sm">
-          <span>{formatDate(post.data.date)}</span> • {postReadingTime}
+          <span>{formatDate(post.data.date)}</span> &nbsp;•&nbsp; {
+            postReadingTime
+          }
+          {
+            !isCurrentSubpost && combinedReadingTime && (
+              <> ( {combinedReadingTime} total )</>
+            )
+          }
+          {
+            !isCurrentSubpost && subpostCount > 0 && (
+              <>
+                {' '}
+                &nbsp;•&nbsp; {subpostCount}{' '}
+                {subpostCount === 1 ? 'subpost' : 'subposts'}
+              </>
+            )
+          }
         </p>
         <div class="flex flex-wrap justify-start gap-2">
           {
