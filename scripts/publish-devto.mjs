@@ -164,23 +164,26 @@ function convertMdxToMarkdown(content, postId) {
   )
 
   // convert relative image paths to absolute URLs
-  markdown = markdown.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (alt, imagePath) => {
-    const absoluteUrl = convertImagePathToUrl(imagePath, postId)
-    return `![${alt}](${absoluteUrl})`
-  })
+  markdown = markdown.replace(
+    /!\[([^\]]*)\]\(([^)]+)\)/g,
+    (_match, alt, imagePath) => {
+      const absoluteUrl = convertImagePathToUrl(imagePath, postId)
+      return `![${alt}](${absoluteUrl})`
+    },
+  )
 
   // convert astro callout components to blockquotes
   markdown = markdown.replace(
     /<Callout[^>]*variant="([^"]*)"[^>]*>([\s\S]*?)<\/Callout>/g,
-    (variant, content) => {
+    (_match, variant, content) => {
       const variantEmoji = {
         note: 'ℹ️',
         warning: '⚠️',
         important: '❗',
         tip: '💡',
       }
-      const emoji = variantEmoji[variant] || 'ℹ️'
-      return `\n> ${emoji} **${variant.charAt(0).toUpperCase() + variant.slice(1)}**: ${content.trim()}\n`
+      const emoji = variantEmoji[variant] || variantEmoji.note
+      return `\n> ${emoji} ${content.trim()}\n`
     },
   )
 
@@ -189,6 +192,30 @@ function convertMdxToMarkdown(content, postId) {
   markdown = markdown.replace(/<[A-Z]\w+[^>]*>[\s\S]*?<\/[A-Z]\w+>/g, '')
 
   return markdown.trim()
+}
+
+/**
+ * sanitizes tags for dev.to API (alphanumeric only, no spaces or hyphens)
+ */
+function sanitizeTags(tags) {
+  if (!Array.isArray(tags)) {
+    return []
+  }
+
+  return tags
+    .map((tag) => {
+      if (typeof tag !== 'string') {
+        return null
+      }
+      // remove hyphens and spaces, convert to lowercase, keep only alphanumeric
+      return tag
+        .replace(/[-_\s]/g, '') // remove hyphens, underscores, and spaces
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '') // remove any remaining non-alphanumeric
+        .trim()
+    })
+    .filter((tag) => tag && tag.length > 0)
+    .slice(0, 4) // dev.to allows max 4 tags
 }
 
 /**
@@ -230,10 +257,10 @@ async function devToApiRequest(endpoint, options = {}) {
 }
 
 /**
- * gets all articles from dev.to
+ * gets all articles from dev.to (including drafts)
  */
 async function getAllDevToArticles() {
-  return devToApiRequest('articles/me')
+  return devToApiRequest('articles/me/all')
 }
 
 /**
@@ -358,7 +385,7 @@ async function processPost(post, metadata, publish = false) {
     const articleData = {
       title: frontmatter.title,
       body_markdown: markdownBody,
-      tags: frontmatter.tags || [],
+      tags: sanitizeTags(frontmatter.tags),
       published: publish,
       canonical_url: canonicalUrl,
       description: frontmatter.description || '',
