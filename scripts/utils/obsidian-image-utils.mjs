@@ -15,11 +15,14 @@ export function normalizeImageName(imageName) {
 
 /**
  * processes images in markdown content
- * @returns {{ content: string, results: Array }}
+ * @param {string} content - markdown content
+ * @param {string} sourceDir - source directory for images
+ * @param {string} destDir - destination directory
+ * @returns {Promise<{ content: string, results: Array }>}
  */
 export async function processImages(content, sourceDir, destDir) {
-  const matches = [...content.matchAll(OBSIDIAN_IMAGE_REGEX)];
-  if (matches.length === 0) return { content, results: [] };
+  const matches = [...content.matchAll(OBSIDIAN_IMAGE_REGEX)]
+  if (matches.length === 0) return Promise.resolve({ content, results: [] })
 
   const assetsDir = path.join(destDir, "assets");
   await fs.ensureDir(assetsDir);

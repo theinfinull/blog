@@ -11,8 +11,8 @@
     "astro": "astro",
     "prettier": "prettier --write **/*.{ts,tsx,css,astro} --ignore-path .gitignore",
     "postinstall": "patch-package",
-    "obsidian:import": "node scripts/import-obsidian.mjs",
-    "obsidian:commit": "node scripts/import-and-commit.mjs",
+    "import:obsidian": "node scripts/import-obsidian.mjs",
+    "import-and-commit:obsidian": "node scripts/import-and-commit.mjs",
     "publish:devto": "node scripts/publish-devto.mjs",
     "publish:medium": "node scripts/publish-medium.mjs"
   },
