@@ -11,5 +11,7 @@ pnpm-debug.log*
 .idea/
 teaser.pptx
 ~$teaser.pptx
-TODO.md
+
+# extra
+LOCALNOTES.md
 scripts/data/.devto-post-metadata.json
