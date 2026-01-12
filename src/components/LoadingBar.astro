@@ -28,7 +28,6 @@
   const INITIAL_PROGRESS = 10
   const MAX_PROGRESS = 90
   const PROGRESS_INCREMENT = 15
-  const EXCLUDED_PATHS = ['/rss.xml', '/static/common/sedhumadhav-cv.pdf']
 
   // Logic
   let progressInterval: ReturnType<typeof setInterval> | null = null
@@ -97,6 +96,17 @@
     }, COMPLETION_DELAY_MS)
   }
 
+  function isExcludableRoute(url: URL) {
+    const pathname = url.pathname.toLowerCase()
+    const staticExtensions = ['.pdf', '.xml', '.json', '.txt', '.csv', '.zip']
+
+    const hasStaticExtension = staticExtensions.some((ext) =>
+      pathname.endsWith(ext)
+    )
+
+    return hasStaticExtension
+  }
+
   function handleLinkClick(e: MouseEvent) {
     const target = e.target as HTMLElement
     const link = target.closest('a[href]') as HTMLAnchorElement
@@ -107,7 +117,8 @@
       const url = new URL(link.href)
       const currentUrl = new URL(window.location.href)
 
-      if (EXCLUDED_PATHS.includes(url.pathname)) return
+      // exclude some routes and static files
+      if (isExcludableRoute(url)) return
 
       if (
         url.origin === currentUrl.origin &&
@@ -116,7 +127,7 @@
         showLoadingBar()
       }
     } catch {
-      // Invalid URL, ignore
+      // invalid URL, ignore it
     }
   }
 
