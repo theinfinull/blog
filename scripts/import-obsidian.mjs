@@ -23,111 +23,128 @@ import dotenv from 'dotenv'
 import fs from 'fs-extra'
 import path from 'path'
 import matter from 'gray-matter'
+import { fileURLToPath } from 'url'
 import createLogger from './logger.mjs'
-import { slugify, isMarkdownFile, getBasename } from './utils/file-utils.mjs'
-import { processImages } from './utils/obsidian-image-utils.mjs'
 import {
-  shouldSkipFile,
-  processFrontmatter,
-} from './utils/frontmatter-utils.mjs'
+  validateEnvironment,
+  getEnvConfig,
+  isMarkdownFile,
+  slugify,
+  getBasename,
+  validateFrontmatter,
+  getSkipReason,
+  parseObsidianFrontMatter,
+  processImages,
+  buildMdxContent,
+} from './utils/import-obsidian-utils.mjs'
 
 dotenv.config({ path: '.env' })
 
-const SOURCE_MARKDOWN_DIR = process.env.SOURCE_MARKDOWN_DIR
-const SOURCE_ATTACHMENT_DIR = process.env.SOURCE_ATTACHMENT_DIR
-const TARGET_DIR = process.env.TARGET_DIR
+const filename = path.basename(fileURLToPath(import.meta.url))
+const log = createLogger(filename)
 
-const log = createLogger('import-obsidian')
+// ============================================================================
+// NOTE PROCESSING HELPERS
+// ============================================================================
 
 /**
- * validates required environment variables
+ * reads and parses note file
  */
-function validateEnvironment() {
-  const missing = []
-  if (!SOURCE_MARKDOWN_DIR) missing.push('SOURCE_MARKDOWN_DIR')
-  if (!SOURCE_ATTACHMENT_DIR) missing.push('SOURCE_ATTACHMENT_DIR')
-  if (!TARGET_DIR) missing.push('TARGET_DIR')
-
-  if (missing.length > 0) {
-    throw new Error(
-      `missing required environment variables: ${missing.join(', ')}`,
-    )
-  }
+async function readNoteFile(filePath) {
+  const content = await fs.readFile(filePath, 'utf-8')
+  const { data: frontmatter, content: body } = matter(content)
+  return { frontmatter, body }
 }
 
 /**
- * processes a single obsidian note file
+ * writes MDX file to destination directory
  */
-async function processNote(filePath) {
+async function writeMdxFile(destinationDir, content) {
+  const destPath = path.join(destinationDir, 'index.mdx')
+  await fs.writeFile(destPath, content)
+}
+
+/**
+ * logs image processing results
+ */
+function logImageResults(imageResults) {
+  if (!imageResults || imageResults.length === 0) return
+
+  imageResults.forEach((result) => {
+    if (result.success) {
+      log.info(
+        `copied image: ${result.originalName} → assets/${result.normalizedName}`,
+      )
+    } else {
+      log.warn(`missing image: ${result.originalName}`)
+    }
+  })
+}
+
+/**
+ * processes a single obsidian note file, returns { status, filename, message?, slug? }
+ */
+async function processNote(filePath, config) {
   const filename = path.basename(filePath)
   try {
-    // read and parse markdown content
-    const content = await fs.readFile(filePath, 'utf-8')
-    const { data: frontmatter, content: body } = matter(content)
-
-    // check if file should be skipped
-    const skipCheck = shouldSkipFile(frontmatter)
-    if (skipCheck.shouldSkip) {
-      return { skipped: true, reason: skipCheck.reason, filename }
+    const { frontmatter, body } = await readNoteFile(filePath)
+    const skipReason = getSkipReason(frontmatter)
+    if (skipReason) {
+      return { status: 'skipped', message: skipReason, filename }
     }
 
-    // create destination directory
+    const validationError = validateFrontmatter(frontmatter)
+    if (validationError) {
+      return { status: 'error', message: validationError, filename }
+    }
+
     const slug = slugify(getBasename(filePath))
-    const destinationDir = path.join(TARGET_DIR, slug)
+    const destinationDir = path.join(config.targetDir, slug)
     await fs.ensureDir(destinationDir)
 
-    // process and normalize frontmatter
-    const processedFrontmatter = processFrontmatter(
+    const processedFrontmatter = parseObsidianFrontMatter(
       frontmatter,
       filePath,
       getBasename,
     )
 
-    // process images from obsidian attachments
-    const imageProcessResult = await processImages(
+    const imageResult = await processImages(
       body,
-      SOURCE_ATTACHMENT_DIR,
+      config.sourceAttachmentDir,
       destinationDir,
     )
-    const processedBody = imageProcessResult.content
-    const imageResults = imageProcessResult.results
+    logImageResults(imageResult.results)
 
-    // log image processing results
-    if (imageResults && imageResults.length > 0) {
-      imageResults.forEach((result) => {
-        if (result.success) {
-          log.info(
-            `copied image: ${result.originalName} → assets/${result.normalizedName}`,
-          )
-        } else {
-          log.warn(`missing image: ${result.originalName}`)
-        }
-      })
-    }
+    const finalContent = buildMdxContent(
+      imageResult.content,
+      processedFrontmatter,
+    )
+    await writeMdxFile(destinationDir, finalContent)
 
-    // write MDX file using gray-matter's stringify method
-    const finalContent = matter.stringify(processedBody, processedFrontmatter)
-    const destMarkdownPath = path.join(destinationDir, 'index.mdx')
-    await fs.writeFile(destMarkdownPath, finalContent)
-
-    return { skipped: false, slug, filename }
+    return { status: 'imported', filename, slug }
   } catch (error) {
     log.error(`error processing ${filePath}: ${error.message}`)
-    throw error
+    return { status: 'error', filename, message: error.message }
   }
 }
 
+// ============================================================================
+// BATCH PROCESSING
+// ============================================================================
+
 /**
- * processes files with concurrency limit
+ * processes files with concurrency limit, returns array of { status, filename, message?, slug? }
  */
-async function processFilesInParallel(files, concurrency = 5) {
+async function processFilesInParallel(files, config, concurrency = 8) {
   const results = []
-  const filePaths = files.map((file) => path.join(SOURCE_MARKDOWN_DIR, file))
+  const filePaths = files.map((file) =>
+    path.join(config.sourceMarkdownDir, file),
+  )
 
   for (let i = 0; i < filePaths.length; i += concurrency) {
     const batch = filePaths.slice(i, i + concurrency)
     const batchResults = await Promise.allSettled(
-      batch.map((filePath) => processNote(filePath)),
+      batch.map((filePath) => processNote(filePath, config)),
     )
 
     batchResults.forEach((result, idx) => {
@@ -136,10 +153,10 @@ async function processFilesInParallel(files, concurrency = 5) {
       } else {
         const filePath = batch[idx]
         const filename = path.basename(filePath)
-        log.error(
-          `failed to process ${filePath}: ${result.reason?.message || result.reason}`,
-        )
-        results.push({ skipped: true, reason: 'processing error', filename })
+        const errorMessage =
+          result.reason?.message || String(result.reason) || 'unknown error'
+        log.error(`failed to process ${filePath}: ${errorMessage}`)
+        results.push({ status: 'error', filename, message: errorMessage })
       }
     })
   }
@@ -147,37 +164,61 @@ async function processFilesInParallel(files, concurrency = 5) {
   return results
 }
 
+// ============================================================================
+// RESULT LOGGING
+// ============================================================================
+
+/**
+ * logs final import results summary
+ */
+function logImportResults(results) {
+  const imported = results.filter((r) => r.status === 'imported')
+  const skipped = results.filter((r) => r.status === 'skipped')
+  const errors = results.filter((r) => r.status === 'error')
+
+  imported.forEach((r) => {
+    log.success(`imported: '${r.filename}' → '${r.slug}/index.mdx'`)
+  })
+
+  skipped.forEach((r) => {
+    log.warn(`skipped '${r.filename}': ${r.message}`)
+  })
+
+  errors.forEach((r) => {
+    log.error(`error '${r.filename}': ${r.message}`)
+  })
+
+  log.success(
+    `import completed: ${imported.length} imported, ${skipped.length} skipped, ${errors.length} errors`,
+  )
+}
+
+// ============================================================================
+// MAIN EXECUTION
+// ============================================================================
+
 /**
  * main execution function
  */
 async function run() {
   try {
     validateEnvironment()
+    const config = getEnvConfig()
 
     log.info('starting import: obsidian → astro MDX blog')
-    const files = await fs.readdir(SOURCE_MARKDOWN_DIR)
+
+    const files = await fs.readdir(config.sourceMarkdownDir)
     const markdownFiles = files.filter(isMarkdownFile)
+
     if (markdownFiles.length === 0) {
       log.warn('no markdown files found in source directory')
       return
     }
+
     log.info(`found ${markdownFiles.length} markdown file(s)`)
 
-    const results = await processFilesInParallel(markdownFiles)
-    const imported = results.filter((r) => !r.skipped)
-    const skipped = results.filter((r) => r.skipped)
-
-    imported.forEach((result) => {
-      log.success(
-        `imported: '${result.filename}' → '${result.slug}/index.mdx'`,
-      )
-    })
-    skipped.forEach((result) => {
-      log.warn(`skipped '${result.filename}': ${result.reason}`)
-    })
-    log.success(
-      `import completed: '${imported.length}' imported, '${skipped.length}' skipped`,
-    )
+    const results = await processFilesInParallel(markdownFiles, config)
+    logImportResults(results)
   } catch (error) {
     log.error(`import failed: ${error.message}`)
     process.exit(1)
