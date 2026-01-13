@@ -12,6 +12,7 @@
 - [x] re implement search
 - [x] migrate from google fonts to own
 - [x] subpost support
+- [-] publish to medium script : (seems to be not available for now) https://help.medium.com/hc/en-us/articles/213480228-API-Importing
 
 ---
 
