@@ -4,13 +4,15 @@
  * posts or updates a blog post on dev.to platform
  *
  * usage:
- *   npm run publish:devto <post-id> [--publish] [--recreate]
- *   npm run publish:devto --recreate              # rebuild metadata from dev.to
+ *   npm run publish:devto <post-id> [-- --publish] [-- --recreate]
+ *   npm run publish:devto -- --recreate            # rebuild metadata from dev.to
  *
  * examples:
  *   npm run publish:devto first-blog               # posts as draft
- *   npm run publish:devto first-blog --publish     # publishes immediately
- *   npm run publish:devto --recreate               # rebuild metadata file from dev.to
+ *   npm run publish:devto first-blog -- --publish  # publishes immediately
+ *   npm run publish:devto -- --recreate            # rebuild metadata file from dev.to
+ *
+ * note: use -- to separate npm args from script args when using flags
  *
  * requirements:
  *   - DEVTO_API_KEY in .env file (get from https://dev.to/settings/extensions)
@@ -472,13 +474,14 @@ async function run() {
     if (!postId) {
       log.error('please provide a post ID as an argument.')
       log.info(
-        'usage: npm run publish:devto <post-id> [--publish] [--recreate]',
+        'usage: npm run publish:devto <post-id> [-- --publish] [-- --recreate]',
       )
       log.info('examples:')
-      log.info('  npm run publish:devto first-blog --publish')
+      log.info('  npm run publish:devto first-blog -- --publish')
       log.info(
-        '  npm run publish:devto --recreate  # rebuild metadata from dev.to',
+        '  npm run publish:devto -- --recreate  # rebuild metadata from dev.to',
       )
+      log.info('note: use -- to separate npm args from script args')
       process.exit(1)
     }
 
