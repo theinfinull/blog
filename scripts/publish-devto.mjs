@@ -4,12 +4,13 @@
  * posts or updates a blog post on dev.to platform
  *
  * usage:
- *   npm run publish:devto <post-id> [-- --publish] [-- --recreate]
+ *   npm run publish:devto <post-id> [-- --publish] [-- --draft] [-- --recreate]
  *   npm run publish:devto -- --recreate            # rebuild metadata from dev.to
  *
  * examples:
- *   npm run publish:devto first-blog               # posts as draft
- *   npm run publish:devto first-blog -- --publish  # publishes immediately
+ *   npm run publish:devto first-blog               # posts/updates article, retaining current state (or draft for new articles)
+ *   npm run publish:devto first-blog -- --draft    # explicitly sets article to draft
+ *   npm run publish:devto first-blog -- --publish  # explicitly publishes article
  *   npm run publish:devto -- --recreate            # rebuild metadata file from dev.to
  *
  * note: use -- to separate npm args from script args when using flags
@@ -311,6 +312,7 @@ async function recreateMetadataFile() {
             devtoUrl: article.url,
             canonicalUrl: article.canonical_url,
             lastUpdated: article.published_at || new Date().toISOString(),
+            published: !!article.published_timestamp,
           }
           log.info(`matched: ${postId} -> dev.to article #${article.id}`)
         } else {
@@ -361,7 +363,7 @@ async function updateArticle(articleId, articleData) {
 /**
  * processes a single blog post and posts/updates it on dev.to
  */
-async function processPost(post, metadata, publish = false) {
+async function processPost(post, metadata, postState = null) {
   const { id, path: postPath } = post
 
   try {
@@ -384,19 +386,6 @@ async function processPost(post, metadata, publish = false) {
     }
 
     const canonicalUrl = `${ORIGINAL_SITE_URL}/blog/${id}`
-    const articleData = {
-      title: frontmatter.title,
-      body_markdown: markdownBody,
-      tags: sanitizeTags(frontmatter.tags),
-      published: publish,
-      canonical_url: canonicalUrl,
-      description: frontmatter.description || '',
-      ...(mainImage && { main_image: mainImage }),
-    }
-
-    if (mainImage) {
-      log.info(`setting banner image: ${mainImage}`)
-    }
 
     // check if article already exists
     const existingArticle = await getArticleByCanonicalUrl(canonicalUrl)
@@ -404,6 +393,30 @@ async function processPost(post, metadata, publish = false) {
 
     // determine article ID to update (if any)
     const articleId = existingArticle?.id || existingMetadata?.devtoId
+
+    // determine post state: only include if explicitly set
+    let publishedBool
+    if (postState === null) {
+      publishedBool = undefined
+    } else if (postState === 'draft') {
+      publishedBool = false
+    } else if (postState === 'publish') {
+      publishedBool = true
+    }
+
+    const articleData = {
+      title: frontmatter.title,
+      body_markdown: markdownBody,
+      tags: sanitizeTags(frontmatter.tags),
+      canonical_url: canonicalUrl,
+      description: frontmatter.description || '',
+      ...(mainImage && { main_image: mainImage }),
+      ...(publishedBool !== undefined && { published: publishedBool }),
+    }
+
+    if (mainImage) {
+      log.info(`setting banner image: ${mainImage}`)
+    }
 
     let result
     if (articleId) {
@@ -430,14 +443,17 @@ async function processPost(post, metadata, publish = false) {
       devtoUrl: result.url,
       canonicalUrl,
       lastUpdated: new Date().toISOString(),
+      published: !!result.published_timestamp, // published_timestamp is null for drafts, timestamp for published
     }
+
+    // log.debug(`result: ${JSON.stringify(result)}`)
 
     return {
       skipped: false,
       id,
       devtoId: result.id,
       devtoUrl: result.url,
-      published: result.published,
+      published: !!result.published_timestamp, // published_timestamp is null for drafts, timestamp for published
     }
   } catch (error) {
     log.error(`error processing ${id}: ${error.message}`)
@@ -460,7 +476,19 @@ async function run() {
     const args = process.argv.slice(2)
     const postId = args[0]
     const publishFlag = args.includes('--publish') || args.includes('-p')
+    const draftFlag = args.includes('--draft') || args.includes('-d')
     const recreateFlag = args.includes('--recreate') || args.includes('-r')
+
+    // determine post state: null = retain current state, state = 'publish' or 'draft'
+    let postState = null
+    if (publishFlag && draftFlag) {
+      log.error('cannot specify both --publish and --draft flags')
+      process.exit(1)
+    } else if (publishFlag) {
+      postState = 'publish'
+    } else if (draftFlag) {
+      postState = 'draft'
+    }
 
     if (recreateFlag && !postId) {
       log.info('recreating metadata file from dev.to...')
@@ -474,10 +502,12 @@ async function run() {
     if (!postId) {
       log.error('please provide a post ID as an argument.')
       log.info(
-        'usage: npm run publish:devto <post-id> [-- --publish] [-- --recreate]',
+        'usage: npm run publish:devto <post-id> [-- --publish] [-- --draft] [-- --recreate]',
       )
       log.info('examples:')
-      log.info('  npm run publish:devto first-blog -- --publish')
+      log.info('  npm run publish:devto first-blog               # retain current state')
+      log.info('  npm run publish:devto first-blog -- --publish  # explicitly publish')
+      log.info('  npm run publish:devto first-blog -- --draft    # explicitly set to draft')
       log.info(
         '  npm run publish:devto -- --recreate  # rebuild metadata from dev.to',
       )
@@ -514,10 +544,9 @@ async function run() {
       process.exit(1)
     }
 
-    log.info(
-      `posting to dev.to${publishFlag ? ' (publishing)' : ' (draft)'}...`,
-    )
-    const result = await processPost(post, metadata, publishFlag)
+    const stateMessage = postState === null ? 'current' : postState
+    log.info(`posting to dev.to in ${stateMessage} mode ...`)
+    const result = await processPost(post, metadata, postState)
 
     if (result.skipped) {
       log.warn(`post skipped: ${result.reason}`)
