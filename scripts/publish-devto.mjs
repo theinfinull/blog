@@ -156,6 +156,7 @@ function convertImagePathToUrl(imagePath, postId) {
  * - removes astro component imports
  * - removes astro component usage (basic handling)
  * - converts relative image paths to absolute URLs
+ * - converts relative links to absolute URLs using original site domain
  */
 function convertMdxToMarkdown(content, postId) {
   let markdown = content
@@ -174,6 +175,21 @@ function convertMdxToMarkdown(content, postId) {
       return `![${alt}](${absoluteUrl})`
     },
   )
+
+  // convert relative links (starting with /) to absolute URLs using original site domain
+  if (ORIGINAL_SITE_URL) {
+    markdown = markdown.replace(
+      /\[([^\]]*)\]\((\/[^)]*)\)/g,
+      (_match, linkText, linkPath) => {
+        // skip if already absolute URL or anchor link
+        if (linkPath.startsWith('http://') || linkPath.startsWith('https://') || linkPath.startsWith('#')) {
+          return `[${linkText}](${linkPath})`
+        }
+        const absoluteUrl = `${ORIGINAL_SITE_URL}${linkPath}`
+        return `[${linkText}](${absoluteUrl})`
+      },
+    )
+  }
 
   // convert astro callout components to blockquotes
   markdown = markdown.replace(
